@@ -20,6 +20,20 @@ class DiscordBot
         await this.bot.login(Secret.Token);
     }
 
+    public async SendDM(userId: string, message: string)
+    {
+        var user = await this.GetUser(userId);
+
+        user.send(message);
+    }
+
+    async GetUser(userId: string): Promise<User>
+    {
+        var user = await this.bot.fetchUser(userId);
+
+        return user;
+    }
+
     async OnReady()
     {
         console.log("Bot Ready");
