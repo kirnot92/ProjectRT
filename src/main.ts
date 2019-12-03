@@ -1,5 +1,6 @@
 import {Client, Message as MessageContainer, User} from "discord.js";
 import {AnyChannel} from "./scripts/extension/typeExtension";
+import String from "./scripts/extension/stringExtension";
 import * as Secret from "./json/secret.json";
 import * as Config from "./json/config.json";
 
@@ -26,13 +27,13 @@ class DiscordBot
 
     async OnMessage(container: MessageContainer)
     {
-        try
+        if (this.IsDM(container))
         {
-            this.HandleMessage(container.content, container.channel, container.author);
+            // TODO
         }
-        catch (e)
+        else
         {
-            container.channel.send("Exception 발생: " + e);
+            await this.HandleMessage(container.content, container.channel, container.author);
         }
     }
 
@@ -45,6 +46,11 @@ class DiscordBot
             // var result = await behavior.IsValid() ? await behavior.Result() : behavior.OnFail();
             // await channel.send(result.Message, result.Options);
         }
+    }
+
+    IsDM(container: MessageContainer): boolean
+    {
+        return container.channel.type == "dm";
     }
 }
 
