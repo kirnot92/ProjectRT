@@ -43,22 +43,50 @@ class DiscordBot
     {
         if (this.IsDM(container))
         {
-            // TODO
+            await this.HandleDirectMessage(container.content, container.channel, container.author);
         }
         else
         {
-            await this.HandleMessage(container.content, container.channel, container.author);
+            await this.HandleChannelMessage(container.content, container.channel, container.author);
         }
     }
 
-    async HandleMessage(message: string, channel: AnyChannel, author: User)
+    async HandleDirectMessage(message: string, channel: AnyChannel, author: User)
     {
-        if (message.startsWith(Config.Prefix) && !author.bot)
+        if (!message.startsWith(Config.Prefix) || author.bot) { return; }
+
+        // if (!userRoomMap.Contains(author.Id)) { return; }
+        // option: user.send("게임에 참가중이지 않습니다"); 
+
+        var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
+
+        // var room = userIdRoomMap[userId];
+        // room.HandleMessage(msg, channel);
+        // 메세지를 받을 수 있거나 없거나 안쪽에서 알아서 판단
+        // room mainLoop 디자인해야 함(backgroundJob?)
+    }
+
+    async HandleChannelMessage(message: string, channel: AnyChannel, author: User)
+    {
+        if (!message.startsWith(Config.Prefix) || author.bot) { return; }
+
+        var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
+
+        switch(args[0])
         {
-            // var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
-            // var behavior = await BehaviorFactory.Create(args, author.id, channel.id, this.bot);
-            // var result = await behavior.IsValid() ? await behavior.Result() : behavior.OnFail();
-            // await channel.send(result.Message, result.Options);
+            case "공대모집":
+                // if(waitForStartRoomMap.Contains(channelId)) { send("이미 모집중임"); return; }
+                // var room = CreateRoom();
+                // var inviteMsg = sendMessage
+                // onEmojiReponse.Add -> if(emoji.msg == inviteMsg) waitForStartRoomMap[channelId].JoinUser(userId)
+                // onEmojiReponse.Remove -> if(emoji.msg == inviteMsg) waitForStartRoomMap[channelId].QuitUser(userId)
+                break;
+            case "공대출발":
+                // var room = waitForStartRoomMap[channelId];
+                // room.Start();
+                // => foreach(var userId in users) GetUser(userId).Send(SystemMessage.GameStartMessage);
+                // waitForStartRoomMap.Remove(channelId);
+                break;
         }
     }
 
