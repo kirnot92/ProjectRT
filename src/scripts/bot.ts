@@ -1,17 +1,18 @@
 import {Client, Message as MessageContainer, User} from "discord.js";
-import {AnyChannel} from "./scripts/extension/typeExtension";
-import * as Secret from "./json/secret.json";
-import * as Config from "./json/config.json";
+import {AnyChannel} from "./extension/typeExtension";
+import String from "./extension/stringExtension";
+import * as Secret from "../json/secret.json";
+import * as Config from "../json/config.json";
 
-class DiscordBot
+export default class DiscordBot
 {
     private bot : Client
 
     constructor()
     {
         this.bot = new Client();
-        this.bot.on("message", async (msg) => await this.OnMessage(msg));
         this.bot.on("ready", async () => await this.OnReady());
+        this.bot.on("message", async (msg) => await this.OnMessage(msg));
     }
 
     public async Login()
@@ -40,13 +41,10 @@ class DiscordBot
     {
         if (message.startsWith(Config.Prefix) && !author.bot)
         {
-            // var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
+            var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
             // var behavior = await BehaviorFactory.Create(args, author.id, channel.id, this.bot);
             // var result = await behavior.IsValid() ? await behavior.Result() : behavior.OnFail();
             // await channel.send(result.Message, result.Options);
         }
     }
 }
-
-var discordBot = new DiscordBot()
-discordBot.Login()
