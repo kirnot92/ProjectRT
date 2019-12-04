@@ -7,7 +7,7 @@ import Dictionary from "./scripts/collection/dictionary";
 import Assert from "./scripts/assert";
 import Room from "./scripts/room";
 
-class RoomHolder
+class RoomManager
 {
     waitForStartRoomMap: Dictionary<string, Room>
     userIdRoomMap: Dictionary<string, Room>
@@ -16,13 +16,12 @@ class RoomHolder
     {
         this.waitForStartRoomMap = new Dictionary<string, Room>();
         this.userIdRoomMap = new Dictionary<string, Room>();
-        
     }
 
     public CreateRoom(channelId: string)
     {
-        Assert.IsFalse(this.IsWaiting(channelId), "이미 대기중인 방이 있습니다.");
-        
+        Assert.IsFalse(this.IsWaiting(channelId));
+
         var room =  new Room();
         this.waitForStartRoomMap.Add(channelId, room);
     }
@@ -36,17 +35,33 @@ class RoomHolder
         return null;
     }
 
-    public StartGame(channelId: string)
+    public MustGetWaitingRoom(channelId: string): Room
     {
         var room = this.FindWaitingRoom(channelId);
-        Assert.NotNull(room, "방이 없는데 시작하려 했습니다");
+        Assert.NotNull(room);
 
+        return room;
+    }
+
+    public JoinPlayer(channelId: string, userId: string)
+    {
+        var room = this.FindWaitingRoom(channelId);
+        if (room == null) { return; }
+
+        Assert.IsFalse(this.userIdRoomMap.ContainsKey(userId));
+
+        this.userIdRoomMap.Add(userId, room);
+    }
+
+    public StartGame(channelId: string)
+    {
+        var room = this.MustGetWaitingRoom(channelId);
         room.Start();
-        
+
         this.waitForStartRoomMap.Remove(channelId);
     }
 
-    IsWaiting(channelId: string): boolean
+    public IsWaiting(channelId: string): boolean
     {
         return this.waitForStartRoomMap.ContainsKey(channelId);
     }
