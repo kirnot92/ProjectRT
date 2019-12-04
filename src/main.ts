@@ -3,6 +3,54 @@ import {AnyChannel} from "./scripts/extension/typeExtension";
 import String from "./scripts/extension/stringExtension";
 import * as Secret from "./json/secret.json";
 import * as Config from "./json/config.json";
+import Dictionary from "./scripts/collection/dictionary";
+import Assert from "./scripts/assert";
+import Room from "./scripts/room";
+
+class RoomHolder
+{
+    waitForStartRoomMap: Dictionary<string, Room>
+    userIdRoomMap: Dictionary<string, Room>
+
+    constructor()
+    {
+        this.waitForStartRoomMap = new Dictionary<string, Room>();
+        this.userIdRoomMap = new Dictionary<string, Room>();
+        
+    }
+
+    public CreateRoom(channelId: string)
+    {
+        Assert.IsFalse(this.IsWaiting(channelId), "이미 대기중인 방이 있습니다.");
+        
+        var room =  new Room();
+        this.waitForStartRoomMap.Add(channelId, room);
+    }
+
+    public FindWaitingRoom(channelId: string): Room
+    {
+        if (this.IsWaiting(channelId))
+        {
+            return this.waitForStartRoomMap.MustGet(channelId);
+        }
+        return null;
+    }
+
+    public StartGame(channelId: string)
+    {
+        var room = this.FindWaitingRoom(channelId);
+        Assert.NotNull(room, "방이 없는데 시작하려 했습니다");
+
+        room.Start();
+        
+        this.waitForStartRoomMap.Remove(channelId);
+    }
+
+    IsWaiting(channelId: string): boolean
+    {
+        return this.waitForStartRoomMap.ContainsKey(channelId);
+    }
+}
 
 class DiscordBot
 {
@@ -74,12 +122,15 @@ class DiscordBot
 
         switch(args[0])
         {
+            case "공대참가":
+                // if(!waitForStartRoomMap.Contains(channelId)) { send("모집중아님"); return; }
+                // var room = waitForStartRoomMap[channelId];
+                // room.AddUser(userId);
+                break;
             case "공대모집":
                 // if(waitForStartRoomMap.Contains(channelId)) { send("이미 모집중임"); return; }
                 // var room = CreateRoom();
-                // var inviteMsg = sendMessage
-                // onEmojiReponse.Add -> if(emoji.msg == inviteMsg) waitForStartRoomMap[channelId].JoinUser(userId)
-                // onEmojiReponse.Remove -> if(emoji.msg == inviteMsg) waitForStartRoomMap[channelId].QuitUser(userId)
+                // channel.send(responseMsg);
                 break;
             case "공대출발":
                 // var room = waitForStartRoomMap[channelId];
