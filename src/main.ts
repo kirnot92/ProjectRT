@@ -66,7 +66,15 @@ class RoomManager
     {
         return this.waitForStartRoomMap.ContainsKey(channelId);
     }
+
+    public IsPlaying(userId: string)
+    {
+        return this.userIdRoomMap.ContainsKey(userId);
+    }
 }
+
+let roomManager = new RoomManager();
+
 
 class DiscordBot
 {
@@ -118,9 +126,10 @@ class DiscordBot
     async HandleDirectMessage(message: string, channel: AnyChannel, author: User)
     {
         if (!message.startsWith(Config.Prefix) || author.bot) { return; }
-
-        // if (!userRoomMap.Contains(author.Id)) { return; }
-        // option: user.send("게임에 참가중이지 않습니다"); 
+        if (!roomManager.IsPlaying(author.id))
+        {
+            channel.send("게임에 참가중이지 않습니다.")
+        }
 
         var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
 
@@ -135,24 +144,45 @@ class DiscordBot
         if (!message.startsWith(Config.Prefix) || author.bot) { return; }
 
         var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
+        var channelId = channel.id;        
+        var userId = author.id;
 
         switch(args[0])
         {
             case "공대참가":
-                // if(!waitForStartRoomMap.Contains(channelId)) { send("모집중아님"); return; }
-                // var room = waitForStartRoomMap[channelId];
-                // room.AddUser(userId);
+                if (!roomManager.IsWaiting(channelId))
+                {
+                    channel.send("모집중아님");
+                    return;
+                }
+                
+                roomManager.JoinPlayer(channelId, userId);
                 break;
             case "공대모집":
-                // if(waitForStartRoomMap.Contains(channelId)) { send("이미 모집중임"); return; }
-                // var room = CreateRoom();
-                // channel.send(responseMsg);
+                if (roomManager.IsWaiting(channelId))
+                {
+                    channel.send("모집중아님");
+                    return;
+                }
+
+                roomManager.CreateRoom(channelId);
+                channel.send("모집시작");
                 break;
             case "공대출발":
-                // var room = waitForStartRoomMap[channelId];
-                // room.Start();
-                // => foreach(var userId in users) GetUser(userId).Send(SystemMessage.GameStartMessage);
-                // waitForStartRoomMap.Remove(channelId);
+
+                var room = roomManager.FindWaitingRoom(channelId);
+                room.Start();
+
+                var userIds = room.GetUserIds();
+
+                // room이 bot을 들고있어야 할듯?
+                for (var i=0; i<userIds.length; ++i)
+                {
+                    var user = await this.GetUser(userIds[i]);
+                    await user.send("게임시작뎀");
+                }
+
+                roomManager.EndWaiting(channelId);
                 break;
         }
     }

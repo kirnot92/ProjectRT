@@ -33,4 +33,9 @@ export default class List<T>
         }
         return -1;
     }
+
+    public ToArray(): Array<T>
+    {
+        return this.arr;
+    }
 }

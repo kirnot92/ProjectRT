@@ -16,4 +16,9 @@ export default class Room
 
         this.userIds.Add(userId);
     }
+
+    public GetUserIds(): Array<string>
+    {
+        return this.userIds.ToArray();
+    }
 }
