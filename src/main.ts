@@ -9,6 +9,9 @@ import Room from "./scripts/room";
 
 class RoomManager
 {
+    // RoomManager 내부에서는 room 관련 function을 부르지 않도록 함 
+    // 부르기 시작하면 room 관련 모든 함수가 wrapping 될 것
+
     waitForStartRoomMap: Dictionary<string, Room>
     userIdRoomMap: Dictionary<string, Room>
 
@@ -51,13 +54,11 @@ class RoomManager
         Assert.IsFalse(this.userIdRoomMap.ContainsKey(userId));
 
         this.userIdRoomMap.Add(userId, room);
+        room.JoinPlayer(userId);
     }
 
-    public StartGame(channelId: string)
+    public EndWaiting(channelId: string)
     {
-        var room = this.MustGetWaitingRoom(channelId);
-        room.Start();
-
         this.waitForStartRoomMap.Remove(channelId);
     }
 
