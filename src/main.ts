@@ -7,7 +7,6 @@ import RoomManager from "./scripts/roomManager";
 
 let roomManager = new RoomManager();
 
-
 class DiscordBot
 {
     private bot : Client
@@ -22,20 +21,6 @@ class DiscordBot
     public async Login()
     {
         await this.bot.login(Secret.Token);
-    }
-
-    public async SendDM(userId: string, message: string)
-    {
-        var user = await this.GetUser(userId);
-
-        user.send(message);
-    }
-
-    async GetUser(userId: string): Promise<User>
-    {
-        var user = await this.bot.fetchUser(userId);
-
-        return user;
     }
 
     async OnReady()
@@ -97,22 +82,12 @@ class DiscordBot
                     return;
                 }
 
-                roomManager.CreateRoom(channelId);
+                roomManager.CreateRoom(channelId, this.bot);
                 channel.send("모집시작");
                 break;
             case "공대출발":
-
                 var room = roomManager.FindWaitingRoom(channelId);
                 room.Start();
-
-                var userIds = room.GetUserIds();
-
-                // room이 bot을 들고있어야 할듯?
-                for (var i=0; i<userIds.length; ++i)
-                {
-                    var user = await this.GetUser(userIds[i]);
-                    await user.send("게임시작뎀");
-                }
 
                 roomManager.EndWaiting(channelId);
                 break;

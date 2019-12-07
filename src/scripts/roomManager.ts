@@ -1,6 +1,7 @@
 import Room from "./room";
 import Dictionary from "./collection/dictionary";
 import Assert from "./assert";
+import {Client} from "discord.js";
 
 export default class RoomManager
 {
@@ -16,11 +17,11 @@ export default class RoomManager
         this.userIdRoomMap = new Dictionary<string, Room>();
     }
 
-    public CreateRoom(channelId: string)
+    public CreateRoom(channelId: string, client: Client)
     {
         Assert.IsFalse(this.IsWaiting(channelId));
 
-        var room =  new Room();
+        var room =  new Room(client);
         this.waitForStartRoomMap.Add(channelId, room);
     }
 
