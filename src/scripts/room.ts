@@ -4,6 +4,7 @@ import List from "./collection/list";
 import {AnyChannel} from "./extension/typeExtension";
 import String from "./extension/stringExtension";
 import * as Config from "../json/config.json";
+
 export default class Room
 {
     userIds: List<string> = new List<string>();
@@ -13,6 +14,12 @@ export default class Room
     {
         this.client = client;
     }
+
+    // roomUser
+    // roomStage
+    // ㄴ start
+    // ㄴ phase 1~3
+    // ㄴ end
 
     public async Start()
     {
@@ -48,6 +55,16 @@ export default class Room
         user.send(message);
     }
 
+    public async SendDMAll(message: string)
+    {
+        for(var i = 0; i < this.userIds.Count(); ++i)
+        {
+            var user = await this.GetUser(this.userIds.At(i));
+
+            user.send(message);
+        }
+    }
+
     async GetUser(userId: string): Promise<User>
     {
         Assert.IsTrue(this.HasUser(userId));
@@ -59,9 +76,7 @@ export default class Room
     {
         var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
 
-        switch(args[0])
-        {
-            // TODO
-        }
+        // var currStage = roomStageManager.GetCurrent();
+        // currStage.Handle(args)
     }
 }

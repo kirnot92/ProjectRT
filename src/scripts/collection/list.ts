@@ -34,6 +34,16 @@ export default class List<T>
         return -1;
     }
 
+    public Count(): number
+    {
+        return this.arr.length;
+    }
+
+    public At(index: number): T
+    {
+        return this.arr[index];
+    }
+
     public ToArray(): Array<T>
     {
         return this.arr;
