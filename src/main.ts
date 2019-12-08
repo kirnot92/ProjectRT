@@ -77,7 +77,7 @@ class DiscordBot
             case "공대모집":
                 if (roomManager.IsWaiting(channelId))
                 {
-                    channel.send("모집중아님");
+                    channel.send("모집중임");
                     return;
                 }
 
