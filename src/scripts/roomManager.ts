@@ -67,4 +67,14 @@ export default class RoomManager
     {
         return this.userIdRoomMap.ContainsKey(userId);
     }
+
+    public FindPlayingRoom(userId: string): Room
+    {
+        Assert.IsTrue(this.userIdRoomMap.ContainsKey(userId));
+
+        var room = this.userIdRoomMap.MustGet(userId);
+        Assert.IsTrue(room.HasUser(userId));
+
+        return room;
+    }
 }

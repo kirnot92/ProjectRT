@@ -1,7 +1,9 @@
 import Assert from "./assert";
 import {Client, User} from "discord.js";
 import List from "./collection/list";
-
+import {AnyChannel} from "./extension/typeExtension";
+import String from "./extension/stringExtension";
+import * as Config from "../json/config.json";
 export default class Room
 {
     userIds: List<string> = new List<string>();
@@ -22,9 +24,14 @@ export default class Room
         }
     }
 
+    public HasUser(userId: string): boolean
+    {
+        return this.userIds.Contains(userId);
+    }
+
     public JoinPlayer(userId: string)
     {
-        Assert.IsFalse(this.userIds.Contains(userId));
+        Assert.IsFalse(this.HasUser(userId));
 
         this.userIds.Add(userId);
     }
@@ -43,8 +50,18 @@ export default class Room
 
     async GetUser(userId: string): Promise<User>
     {
-        var user = await this.client.fetchUser(userId);
+        Assert.IsTrue(this.HasUser(userId));
 
-        return user;
+        return await this.client.fetchUser(userId);
+    }
+
+    public HandleMessage(message: string, channel: AnyChannel)
+    {
+        var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
+
+        switch(args[0])
+        {
+            // TODO
+        }
     }
 }

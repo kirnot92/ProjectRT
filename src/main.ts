@@ -43,17 +43,16 @@ class DiscordBot
     async HandleDirectMessage(message: string, channel: AnyChannel, author: User)
     {
         if (!message.startsWith(Config.Prefix) || author.bot) { return; }
-        if (!roomManager.IsPlaying(author.id))
+
+        var userId = author.id;
+
+        if (!roomManager.IsPlaying(userId))
         {
             channel.send("게임에 참가중이지 않습니다.")
         }
 
-        var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
-
-        // var room = userIdRoomMap[userId];
-        // room.HandleMessage(msg, channel);
-        // 메세지를 받을 수 있거나 없거나 안쪽에서 알아서 판단
-        // room mainLoop 디자인해야 함(backgroundJob?)
+        var room = roomManager.FindPlayingRoom(userId);
+        room.HandleMessage(message, channel);
     }
 
     async HandleChannelMessage(message: string, channel: AnyChannel, author: User)
@@ -72,7 +71,7 @@ class DiscordBot
                     channel.send("모집중아님");
                     return;
                 }
-                
+
                 roomManager.JoinPlayer(channelId, userId);
                 break;
             case "공대모집":
