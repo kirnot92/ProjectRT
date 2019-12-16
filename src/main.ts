@@ -4,6 +4,7 @@ import String from "./scripts/extension/stringExtension";
 import * as Secret from "./json/secret.json";
 import * as Config from "./json/config.json";
 import RoomManager from "./scripts/roomManager";
+import BackgroundJob from "./scripts/backgroundJob";
 
 let roomManager = new RoomManager();
 
@@ -21,6 +22,11 @@ class DiscordBot
     public async Login()
     {
         await this.bot.login(Secret.Token);
+
+        BackgroundJob.Run(()=>
+        {
+            roomManager.Update();
+        }, BackgroundJob.SecondInterval);
     }
 
     async OnReady()
@@ -68,7 +74,7 @@ class DiscordBot
             case "공대참가":
                 if (!roomManager.IsWaiting(channelId))
                 {
-                    channel.send("모집중아님");
+                    await channel.send("모집중아님");
                     return;
                 }
 
@@ -77,12 +83,12 @@ class DiscordBot
             case "공대모집":
                 if (roomManager.IsWaiting(channelId))
                 {
-                    channel.send("모집중임");
+                    await channel.send("모집중임");
                     return;
                 }
 
                 roomManager.CreateRoom(channelId, this.bot);
-                channel.send("모집시작");
+                await channel.send("모집시작");
                 break;
             case "공대출발":
                 var room = roomManager.FindWaitingRoom(channelId);

@@ -2,12 +2,14 @@ import Room from "./room";
 import Dictionary from "./collection/dictionary";
 import Assert from "./assert";
 import {Client} from "discord.js";
+import List from "./collection/list";
 
 export default class RoomManager
 {
     // RoomManager 내부에서는 room 관련 function을 부르지 않도록 함 
     // 부르기 시작하면 room 관련 모든 함수가 wrapping 될 것
 
+    rooms: List<Room>
     waitForStartRoomMap: Dictionary<string, Room>
     userIdRoomMap: Dictionary<string, Room>
 
@@ -15,6 +17,7 @@ export default class RoomManager
     {
         this.waitForStartRoomMap = new Dictionary<string, Room>();
         this.userIdRoomMap = new Dictionary<string, Room>();
+        this.rooms = new List<Room>();
     }
 
     public CreateRoom(channelId: string, client: Client)
@@ -22,7 +25,9 @@ export default class RoomManager
         Assert.IsFalse(this.IsWaiting(channelId));
 
         var room =  new Room(client);
+
         this.waitForStartRoomMap.Add(channelId, room);
+        this.rooms.Add(room);
     }
 
     public FindWaitingRoom(channelId: string): Room
@@ -76,5 +81,17 @@ export default class RoomManager
         Assert.IsTrue(room.HasUser(userId));
 
         return room;
+    }
+
+    public Update()
+    {
+        var now = Date.now();
+
+        for (var i=0; i < this.rooms.Count(); ++i)
+        {
+            var room = this.rooms.At(i);
+            
+            room.StageManager.Update(now);
+        }
     }
 }
