@@ -4,15 +4,18 @@ import List from "./collection/list";
 import {AnyChannel} from "./extension/typeExtension";
 import String from "./extension/stringExtension";
 import * as Config from "../json/config.json";
+import RoomStageManager from "./RoomStageManager";
 
 export default class Room
 {
+    roomStageManager: RoomStageManager
     userIds: List<string> = new List<string>();
     client: Client;
 
     constructor(client: Client)
     {
         this.client = client;
+        this.roomStageManager = new RoomStageManager(this);
     }
 
     // roomUser
@@ -76,7 +79,7 @@ export default class Room
     {
         var args = String.Slice([message.slice(Config.Prefix.length)], /\s|\n/, 2);
 
-        // var currStage = roomStageManager.GetCurrent();
-        // currStage.Handle(args)
+        var currStage = this.roomStageManager.GetCurrent();
+        currStage.Handle(this, args);
     }
 }
