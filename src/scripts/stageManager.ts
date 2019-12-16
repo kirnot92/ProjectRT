@@ -13,28 +13,43 @@ interface IStage
 class DummyStage implements IStage
 {
     expireTime: number;
+    count: number;
 
     constructor(expireTime: number)
     {
         this.expireTime = expireTime
+        this.count = 0;
     }
 
     public Handle(room: Room, args: string[]): void
     {
+        this.count += 1;
 
+        if (this.count > 4)
+        {
+            // 조건 만족 시 바로 만료처리
+            this.expireTime = Date.now();
+        }
     }
 
     public Update(now: number): void
     {
+        // 여기서 타이머 만료를 잰다
         if (this.expireTime < now)
         {
-            // 여기서 타이머 만료를 잰다
+            // interface로 가야되나?
+            this.OnExpire();
         }
     }
 
     public CreateNextStage(): IStage
     {
         return new DummyStage(Date.now());
+    }
+
+    public OnExpire()
+    {
+
     }
 }
 
@@ -46,7 +61,7 @@ export default class StageManager
     constructor(room: Room)
     {
         this.room = room;
-        this.currentStage = new DummyStage(Date.now());
+        this.currentStage = new DummyStage(Date.now() + 60000);
     }
 
     public GetCurrent(): IStage
